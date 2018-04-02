@@ -257,11 +257,91 @@
         //#endregion
 
         /**
-         * Хэлпер для работу с Ispell словарями
+         * Хэлпер для работу с Ispell словарями.
+         * В конструкторе сразу же прогружаем словари.
          * 
          * @constructor
          */
-        function Ispell() { }
+        function Ispell() {
+            var that = this;
+
+            this.isReady = false;
+            this.onReady = [];
+            this.affixes = null;
+            this.words = null;
+            this.loadDictionaries(['./ispell-dictionaries/russian.dict'], ['./ispell-dictionaries/russian.aff']).then(function (trees) {
+                that.isReady = true;
+                that.affixes = trees.affixes;
+                that.words = trees.words;
+                while (that.onReady.length) {
+                    that.onReady.shift()(that);
+                }
+            });
+        }
+
+        /**
+         * Признак того, что все готово к работе
+         * 
+         * @type {Bool}
+         */
+        Ispell.prototype.isReady = false;
+
+        /**
+         * Список колбэков выполняемых после загрузки словарей
+         * 
+         * @type {Array?}
+         */
+        Ispell.prototype.onReady = null;
+
+        /**
+         * Дерево аффиксоф
+         * 
+         * @type {AffixesTree}
+         */
+        Ispell.prototype.affixes = null;
+
+        /**
+         * Дерево слов
+         * 
+         * @type {WordsTree}
+         */
+        Ispell.prototype.words = null;
+
+        /**
+         * Действия выполняемые после загрузки словарей
+         * 
+         * @param {any} callback
+         * @returns {Ispell}
+         */
+        Ispell.prototype.ready = function (callback) {
+            if (this.isReady) {
+                callback();
+            } else {
+                this.onReady.push(callback);
+            }
+            return this;
+        }
+
+        /**
+         * Получить начвльный форму слова
+         * 
+         * @param {any} word
+         * @returns {Array}
+         */
+        Ispell.prototype.getWordPossibleSimpleForms = function (word) {
+            var that = this;
+            var wordFrorms = [];
+
+            if (!this.isReady) {
+                throw "Словари еще не загружены";
+            }
+            that.affixes.getWordPossibleSimpleForms(word).forEach(function (possibility) {
+                if (that.words.findWord(possibility)) {
+                    wordFrorms.push(possibility);
+                }
+            });
+            return wordFrorms;
+        }
 
         /**
          * Построчно обработать файл
