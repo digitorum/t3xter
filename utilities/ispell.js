@@ -1,3 +1,4 @@
+
 /**
  * Помощник для работы со словарями ISPELL (https://www.cs.hmc.edu/~geoff/ispell.html).
  * 
@@ -26,7 +27,8 @@
          */
         function TreeNode(value) {
             this.value = value;
-            this.children = [];
+            this.size = 0;
+            this.children = {};
         }
 
         /**
@@ -35,6 +37,13 @@
          * @type {Array?}
          */
         TreeNode.prototype.children = null;
+
+        /**
+         * Количество детей ноды
+         * 
+         * @type {Number?}
+         */
+        TreeNode.prototype.size = null;
 
         /**
          * Значение ноды
@@ -59,8 +68,9 @@
             var node = this.find(value);
 
             if (!node) {
+                this.size++;
                 node = new TreeNode(value);
-                this.children.push(node);
+                this.children[value] = node;
             }
             return node;
         }
@@ -95,9 +105,9 @@
                 level = 1;
             }
             str += this.value + "\n";
-            this.children.forEach(function (item) {
+            for (var value in this.children) {
                 str += " ".repeat(level) + item.dumpStructure(level + 1);
-            });
+            }
             return str;
         }
 
@@ -108,9 +118,7 @@
          * @returns {TreeNode}
          */
         TreeNode.prototype.find = function (value) {
-            return this.children.filter(function (item) {
-                return item.value == value;
-            })[0] || null;
+            return this.children[value] || null;
         }
 
         //#endregion
@@ -213,13 +221,12 @@
          * @returns {Array}
          */
         AffixesTree.prototype.getWordPossibleSimpleForms = function (word) {
-            var total = this.children.length;
             var wordLen = word.length;
             var result = [
                 word // Поумолчанию включаем слово в потенциально возможные словоформы.
             ];
 
-            for (var i = 0; i < total; ++i) {
+            for (var i in this.children) {
                 var node = this.children[i];
                 var data = node.getData();
                 var affix = node.value;
