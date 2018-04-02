@@ -6,7 +6,7 @@
 
 (function (root, fabric) {
     if (typeof root.define === 'function' && root.define.amd) {
-        root.define('utilities/ispell', ['utilities/reader'], fabric);
+        root.define('t3xter/utilities/ispell', ['utilities/reader'], fabric);
     } else if (typeof module != 'undefined' && module.exports) {
         module.exports = fabric(require('./reader.js'));
     } else {

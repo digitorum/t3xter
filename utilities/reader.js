@@ -7,7 +7,7 @@
 
 (function (root, fabric) {
     if (typeof root.define === 'function' && root.define.amd) {
-        root.define('utilities/reader', [], fabric);
+        root.define('t3xter/utilities/reader', [], fabric);
     } else if (typeof module != 'undefined' && module.exports) {
         module.exports = fabric(require('readline'), require('fs'));
     } else {
